@@ -54,7 +54,7 @@ public class CalendarView {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				dayView presentDayView = new dayView(700);
+				DayView presentDayView = new DayView(700);
 				presentDayView.showDay();
 			}
 		});
