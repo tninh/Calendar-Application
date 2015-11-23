@@ -12,11 +12,13 @@ import java.util.Calendar;
 public class Event implements Comparable{
 	
 	Calendar time;
+	int duration;
 	String name;
 	String description;
 	
-	public Event(Calendar time, String name, String description) {
+	public Event(Calendar time, int duration, String name, String description) {
 		this.time = time;
+		this.duration = duration;
 		this.name = name;
 		this.description = description;
 	}
@@ -55,5 +57,13 @@ public class Event implements Comparable{
 		this.description = description;
 	}
 	
-	
+
+	public int getDuration() {
+		return duration;
+	}
+
+	public void setDuration(int duration) {
+		this.duration = duration;
+	}
+
 }
