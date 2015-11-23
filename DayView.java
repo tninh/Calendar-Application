@@ -2,9 +2,9 @@ package Calendar;
 
 import javax.swing.JFrame;
 
-public class dayView {
+public class DayView {
 	private int size;
-	public dayView(int size)
+	public DayView(int size)
 	{
 		this.size = size;
 	}
