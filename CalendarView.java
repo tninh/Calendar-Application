@@ -1,5 +1,6 @@
 package Calendar;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -25,110 +26,134 @@ import javax.swing.SwingConstants;
 public class CalendarView {
 	
 	private static final int TEXTWIDTH = 10;
+	private static final int ROWS = 7;
+	private static final int COLUMNS = 7;
+	private static final int DAYS_IN_A_WEEK = 7;
 	private static final String monthLabel = "Month";
 	private static final String weekLabel = "Week";
 	private static final String dayLabel = "Day";
 	
-	private JFrame frame;
+	private CalendarModel calModel;
+    private CalendarController calController;
 	private JButton monthButton;
 	private JButton weekButton;
 	private JButton dayButton;
-	private JPanel panel;
-	private JScrollPane scrollPane;
+	private JPanel headerPanel;
+	private JPanel monthPanel;
+	private JPanel monthPanelHeader;
+	private JPanel monthCalendarPanel;
+	private JPanel weekPanel;
+	private JScrollPane dayScrollPane;
 	private JFrame frame2;
 	private JButton addEvent;
 	
-	private void monthButtonSetUp(){
+	public CalendarView(CalendarModel calModel) {
+		this.calModel = calModel;
+		calController = new CalendarController(calModel, this);
+		monthPanel = new JPanel();
+		weekPanel = new JPanel();
+		dayScrollPane = new JScrollPane();
+		
+	}
+	
+	public void monthButtonSetUp(){
 		monthButton = new JButton(monthLabel);
-		//monthButton.addActionListener(l);
+		monthButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		//return monthButton;
 	}
 	
-	private void weekButtonSetUp(){
+	public void weekButtonSetUp(){
 		weekButton = new JButton(weekLabel);
+		weekButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				monthPanel.setVisible(false);
+				dayScrollPane.setVisible(false);
+			}
+		});
 	}
 	
-	private void dayButtonSetUp(){
+	public void dayButtonSetUp(){
 		dayButton = new JButton(dayLabel);
 		dayButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				DayView presentDayView = new DayView(700);
-				presentDayView.showDay();
+				monthPanel.setVisible(false);
+				weekPanel.setVisible(false);
 			}
 		});
-			
+	
+		//return dayButton;
 	}
 	
-	private void panelSetUp(){
-		panel = new JPanel();
-		scrollPane = new JScrollPane(panel);
-		addEvent = new JButton("Add Event");
+	public JPanel headerSetUp() {
+		headerPanel = new JPanel(new FlowLayout());
+		monthButtonSetUp();
+		weekButtonSetUp();
+		dayButtonSetUp();
+		headerPanel.add(monthButton);
+		headerPanel.add(weekButton);
+		headerPanel.add(dayButton);
+		return headerPanel;
+	}
+	
+	public JPanel monthPanelSetUp(){
+		monthPanel.setLayout(new BorderLayout(2,2));
+		monthCalendarPanel = new JPanel();
+		
+		monthPanelHeader = new JPanel(new FlowLayout());
+		JButton prevMonthButton = new JButton("<");
+		JButton nextMonthButton = new JButton(">");
+		JLabel currentMonthLabel = new JLabel(calModel.getMonthName());
+
+		
+		prevMonthButton.addActionListener(calController.changeMonth(-1));
+		nextMonthButton.addActionListener(calController.changeMonth(1));
+		
+		monthPanelHeader.add(prevMonthButton);
+		monthPanelHeader.add(currentMonthLabel);
+		monthPanelHeader.add(nextMonthButton);
 		
 		
-		// month view
-		/*
-		panel.setLayout(new GridLayout(5, 7));
-		for(int i = 1; i <32; i++ ){
-			panel.add(new JButton(Integer.toString(i)));
-		}
-		panel.setVisible(true);*/
+		JLabel[] daysOfWeek = {new JLabel("Su", SwingConstants.CENTER), new JLabel("Mo", SwingConstants.CENTER), 
+								new JLabel("Tu",SwingConstants.CENTER), new JLabel("We", SwingConstants.CENTER), 
+								new JLabel("Th", SwingConstants.CENTER), new JLabel("Fr", SwingConstants.CENTER), new JLabel("Sa", SwingConstants.CENTER)};
 		
-		
-		panel.setLayout(new BorderLayout(2,2));
-		JPanel hourLabels = new JPanel(new GridLayout(0,1,1,1));
-		JPanel deleteButtons = new JPanel(new GridLayout(0,1,1,1));
-		//JPanel numberPanel = new JPanel();
-		//numberPanel.setLayout(new BoxLayout(numberPanel, BoxLayout.PAGE_AXIS));
-		for(int i = 0; i < 25; i++){
+		monthCalendarPanel.setLayout(new GridLayout(ROWS, COLUMNS));
 			
-			hourLabels.add(new JTextField(Integer.toString(i) + ":00"));
-			deleteButtons.add(new JButton("Delete"));
-			//numberPanel.add(new JLabel(Integer.toString(i)));
-				
-		}
-		
-		panel.add(addEvent, BorderLayout.NORTH);
-		addEvent.addActionListener(new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				eventMaker();
-				
+		for(int i = 0; i < (ROWS * COLUMNS); i++)
+		{
+			if(i < DAYS_IN_A_WEEK){
+				monthCalendarPanel.add(daysOfWeek[i]);
 			}
-		});
-		panel.add(hourLabels, BorderLayout.CENTER);
-		panel.add(deleteButtons, BorderLayout.EAST);
-		//panel.add(numberPanel, BorderLayout.WEST);
+			else{
+				monthCalendarPanel.add(new JButton(Integer.toString(i)));
+			}
+		}
 		
-		//JScrollPane scroll = new JScrollPane(panel);
-		//scroll.add(scroll, BorderLayout.CENTER);
-		scrollPane.setPreferredSize(new Dimension(400,200));
-		scrollPane.setVisible(true);
-		panel.setVisible(true);
-		hourLabels.setVisible(true);
-		deleteButtons.setVisible(true);
+		monthPanel.add(monthPanelHeader, BorderLayout.NORTH);
+		monthPanel.add(monthCalendarPanel, BorderLayout.CENTER);
 		
-	
-		
+		return monthPanel;
 	}
 	
-	private void frameSetUp(){
-		frame = new JFrame("Calendar");
-		frame.setLayout(new FlowLayout());
-		frame.setSize(500, 300);
-		frame.setResizable(false);
-		frame.add(monthButton);
-		frame.add(weekButton);
-		frame.add(dayButton);
-		frame.add(scrollPane);
-		frame.setVisible(true);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	public JPanel weekPanelSetUp() {
+		
+		return weekPanel;
 	}
 	
-	private void eventMaker(){
+	public void eventMaker(){
 		frame2 = new JFrame("Event Maker");
 		frame2.setVisible(true);
 		frame2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -204,7 +229,7 @@ public class CalendarView {
 		//testEventFrame.add
 	}*/
 	
-	
+	/*
 	public static void main(String[] args){
 		CalendarView calendar = new CalendarView();
 		calendar.monthButtonSetUp();
@@ -213,6 +238,6 @@ public class CalendarView {
 		calendar.panelSetUp();
 		calendar.frameSetUp();
 		//calendar.eventMaker();
-	}
+	}*/
 
 }
