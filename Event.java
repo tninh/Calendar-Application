@@ -1,7 +1,6 @@
 package Calendar;
 
-import java.sql.Date;
-import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @authors Phillip, Ricardo, Tri
@@ -9,17 +8,15 @@ import java.util.Calendar;
  * Event class that holds an event on the calendar
  */
 
-public class Event implements Comparable{
+public class Event implements Comparable {
 	
-	Calendar time;
-	int duration;
-	String name;
-	String description;
+	Date startTime; //starting time of the event
+	int duration; //duration of event in minutes
+	String description; //description of the event
 	
-	public Event(Calendar time, int duration, String name, String description) {
-		this.time = time;
+	public Event(Date time, int duration, String description) {
+		this.startTime = time;
 		this.duration = duration;
-		this.name = name;
 		this.description = description;
 	}
 
@@ -28,25 +25,24 @@ public class Event implements Comparable{
 	 */
 	@Override
 	public int compareTo(Object o) {
-		// TODO Auto-generated method stub
 		Event e = (Event) o;
-		return time.compareTo(e.getTime());
+		return startTime.compareTo(e.getStartTime());
 	}
 
-	public Calendar getTime() {
-		return time;
+	
+	//Past this point are the getters and setters for the variables
+	
+	public Date getStartTime() {
+		return startTime;
 	}
 
-	public void setTime(Calendar time) {
-		this.time = time;
+	@Override
+	public String toString() {
+		return startTime.getTime()+" " + duration + " "+description;
 	}
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+	public void setStartTime(Date time) {
+		this.startTime = time;
 	}
 
 	public String getDescription() {
@@ -66,4 +62,11 @@ public class Event implements Comparable{
 		this.duration = duration;
 	}
 
+	public int getDate() {
+		return startTime.getDate();
+	}
+	
+	public int getMonth() {
+		return startTime.getMonth();
+	}
 }
