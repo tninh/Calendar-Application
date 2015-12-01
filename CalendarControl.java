@@ -78,4 +78,14 @@ public class CalendarControl {
 		database.remove(e);
 		save();
 	}
+	
+	public ArrayList<Event> getDay(Date date) {
+		ArrayList<Event> day = new ArrayList<Event>();
+		for (Event e: database) {
+			if (Math.abs(e.getStartTime().getTime()-date.getTime())<MILLISECONDS_IN_HOUR) {
+				day.add(e);
+			}
+		}
+		return day;
+	}
 }
