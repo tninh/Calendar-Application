@@ -69,4 +69,8 @@ public class Event implements Comparable {
 	public int getMonth() {
 		return startTime.getMonth();
 	}
+	
+	public int getHour() {
+		return startTime.getHours();
+	}
 }
