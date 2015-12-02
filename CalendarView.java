@@ -26,7 +26,7 @@ import javax.swing.SwingConstants;
 public class CalendarView {
 	
 	private static final int TEXTWIDTH = 10;
-	private static final int ROWS = 7;
+	private static final int ROWS = 6;
 	private static final int COLUMNS = 7;
 	private static final int DAYS_IN_A_WEEK = 7;
 	private static final String monthLabel = "Month";
@@ -46,6 +46,9 @@ public class CalendarView {
 	private JScrollPane dayScrollPane;
 	private JFrame frame2;
 	private JButton addEvent;
+	JLabel currentMonthLabel;
+	
+	private JButton[] days;
 	
 	public CalendarView(CalendarModel calModel) {
 		this.calModel = calModel;
@@ -54,6 +57,10 @@ public class CalendarView {
 		weekPanel = new JPanel();
 		dayScrollPane = new JScrollPane();
 		
+		days = new JButton[ROWS * COLUMNS];
+		for(int i = 0; i < (ROWS * COLUMNS); i++){
+			days[i] = new JButton("");
+		}
 	}
 	
 	public void monthButtonSetUp(){
@@ -63,7 +70,7 @@ public class CalendarView {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
+				monthPanel.setVisible(true);
 			}
 		});
 		//return monthButton;
@@ -108,14 +115,20 @@ public class CalendarView {
 		return headerPanel;
 	}
 	
+	/*
+	 * Panel that displays the calendar as a Month View
+	 */
 	public JPanel monthPanelSetUp(){
 		monthPanel.setLayout(new BorderLayout(2,2));
 		monthCalendarPanel = new JPanel();
+		JPanel daysOfWeekPanel = new JPanel(new GridLayout(0, COLUMNS));
+		JPanel calendarDays = new JPanel(new GridLayout(ROWS, COLUMNS));
 		
 		monthPanelHeader = new JPanel(new FlowLayout());
+		
 		JButton prevMonthButton = new JButton("<");
 		JButton nextMonthButton = new JButton(">");
-		JLabel currentMonthLabel = new JLabel(calModel.getMonthName());
+		currentMonthLabel = new JLabel(calModel.getMonthName() + " " + calModel.getYear());
 
 		
 		prevMonthButton.addActionListener(calController.changeMonth(-1));
@@ -128,31 +141,47 @@ public class CalendarView {
 		
 		JLabel[] daysOfWeek = {new JLabel("Su", SwingConstants.CENTER), new JLabel("Mo", SwingConstants.CENTER), 
 								new JLabel("Tu",SwingConstants.CENTER), new JLabel("We", SwingConstants.CENTER), 
-								new JLabel("Th", SwingConstants.CENTER), new JLabel("Fr", SwingConstants.CENTER), new JLabel("Sa", SwingConstants.CENTER)};
+								new JLabel("Th", SwingConstants.CENTER), new JLabel("Fr", SwingConstants.CENTER), 
+								new JLabel("Sa", SwingConstants.CENTER)};
 		
-		monthCalendarPanel.setLayout(new GridLayout(ROWS, COLUMNS));
-			
-		for(int i = 0; i < (ROWS * COLUMNS); i++)
-		{
-			if(i < DAYS_IN_A_WEEK){
-				monthCalendarPanel.add(daysOfWeek[i]);
-			}
-			else{
-				monthCalendarPanel.add(new JButton(Integer.toString(i)));
-			}
+		for(int i = 0; i < daysOfWeek.length; i++){
+			daysOfWeekPanel.add(daysOfWeek[i]);
 		}
 		
+		int currentDay = 1;
+		
+		for(int j = calModel.getDayOfTheWeek_MONTH() - 1; j < (ROWS * COLUMNS); j++){
+			if(currentDay > calModel.numOfDays_Month()){
+				break;
+			}
+			days[j] = new JButton(Integer.toString(currentDay));
+			//addActionListener that calls calController to display events for that day
+			currentDay++;
+		}
+		
+		for(JButton d : days){
+			calendarDays.add(d);
+		}
+		
+		monthCalendarPanel.setLayout(new BorderLayout(2,2));
+		monthCalendarPanel.add(daysOfWeekPanel, BorderLayout.NORTH);
+		monthCalendarPanel.add(calendarDays, BorderLayout.CENTER);
 		monthPanel.add(monthPanelHeader, BorderLayout.NORTH);
 		monthPanel.add(monthCalendarPanel, BorderLayout.CENTER);
 		
+		
 		return monthPanel;
 	}
+	
 	
 	public JPanel weekPanelSetUp() {
 		
 		return weekPanel;
 	}
 	
+	/*
+	 * Creates a new JFrame where a user can create an event
+	 */
 	public void eventMaker(){
 		frame2 = new JFrame("Event Maker");
 		frame2.setVisible(true);
@@ -207,7 +236,9 @@ public class CalendarView {
 		chooseTimePanel.add(northTime, BorderLayout.NORTH);
 		chooseTimePanel.add(new JTextArea(1,1), BorderLayout.CENTER);
 		submitPanel.add(new JButton("Submit"));
-		//monthPanel.add(timeSpinner);
+		
+		monthPanel.add(timeSpinner);
+		
 		monthPanel.add(chooseDatePanel, BorderLayout.NORTH);
 		monthPanel.add(chooseTimePanel, BorderLayout.CENTER);
 	
@@ -216,28 +247,43 @@ public class CalendarView {
 		monthPanel.add(submitPanel, BorderLayout.SOUTH);
 		frame2.add(eventPanel);
 		
-		//frame2
-		
 		
 	}
-	/*
-	private void testEventFrame(){
-		JFrame testEventFrame = new JFrame();
-		testEventFrame.setLayout(new FlowLayout());
-		
-		JPanel test = new JPanel();
-		//testEventFrame.add
-	}*/
 	
-	/*
-	public static void main(String[] args){
-		CalendarView calendar = new CalendarView();
-		calendar.monthButtonSetUp();
-		calendar.weekButtonSetUp();
-		calendar.dayButtonSetUp();
-		calendar.panelSetUp();
-		calendar.frameSetUp();
-		//calendar.eventMaker();
-	}*/
+	public void update(){
+		currentMonthLabel.setText(calModel.getMonthName() + " " + calModel.getYear());
+		for(int i = 0; i < calModel.getDayOfTheWeek_MONTH(); i++){
+			days[i].setText("");
+			for (ActionListener a : days[i].getActionListeners())
+            {
+                days[i].removeActionListener(a);
+            }
+			
+			// call action listener from calController to days[i] 
+		}
+		
+		int currentDay = 1;
+		for (int i = calModel.getDayOfTheWeek_MONTH() - 1; i < calModel.getDayOfTheWeek_MONTH() + calModel.numOfDays_Month()- 1; i++)
+        {
+            days[i].setText(currentDay + "");
+            for (ActionListener a : days[i].getActionListeners())
+            {
+                days[i].removeActionListener(a);
+            }
+            // call action listener from calController to days[i] 
+            currentDay++;
+        }
+		
+		for (int i = calModel.getDayOfTheWeek_MONTH() + calModel.numOfDays_Month() - 1; i < days.length; i++)
+        {
+            days[i].setText("");
+            for (ActionListener a : days[i].getActionListeners())
+            {
+                days[i].removeActionListener(a);
+            }
+            
+            // call action listener from calController to days[i]  
+        }
+	}
 
 }
